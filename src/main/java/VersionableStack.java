@@ -26,10 +26,10 @@ public class VersionableStack<E> {
 
     private void merge(VersionableStack<E> master,
                        VersionableStack<E> revised, Runnable change) {
-        System.out.println("Merge: master = " + master.toString() + " revised = " + revised.toString());
+        System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 
         if (!Objects.equals(revised.version - 1, master.version)) {
-            System.out.println(String.format("Conflict: Master - %s, Revised - %s", master.toString(), revised.toString()));
+            System.out.printf("Conflict: Master - %s, Revised - %s%n", master.toString(), revised.toString());
 
             switch (strategy) {
 
