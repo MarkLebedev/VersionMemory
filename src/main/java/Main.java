@@ -4,14 +4,36 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class Main {
     public static void main(String[] args) {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
-        VersionableStack<Integer> stack = new VersionableStack<Integer>(ResolveStrategy.LEFT);
+//        VersionableStack<Integer> stack = new VersionableStack<Integer>(ResolveStrategy.LEFT);
+//
+//        stack.add(2);
+//        stack.add(3);
+//
+//        executor.submit(() -> {
+//            System.out.println(stack.pop()); // sleep 2000
+//            System.out.println(stack.toString());
+//
+//        });
+//
+//        executor.submit(() -> {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            stack.pop();
+//            stack.add(5);
+//            System.out.println(stack.toString());
+//        });
 
-        stack.add(2);
-        stack.add(3);
+        VersionableQueue<Integer> queue = new VersionableQueue<Integer>(ResolveStrategy.LEFT_RIGHT);
+
+        queue.add(2);
+        queue.add(3);
 
         executor.submit(() -> {
-            System.out.println(stack.pop()); // sleep 2000
-            System.out.println(stack.toString());
+            System.out.println(queue.remove()); // sleep 2000
+            System.out.println(queue.toString());
 
         });
 
@@ -21,11 +43,10 @@ public class Main {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            stack.pop();
-            stack.add(5);
-            System.out.println(stack.toString());
+            queue.remove();
+            queue.add(5);
+            System.out.println(queue.toString());
         });
-
 
     }
 
