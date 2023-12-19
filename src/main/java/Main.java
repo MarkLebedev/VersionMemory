@@ -4,6 +4,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class Main {
     public static void main(String[] args) {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
+
+//        STACK TESTING
+
 //        VersionableStack<Integer> stack = new VersionableStack<Integer>(ResolveStrategy.LEFT);
 //
 //        stack.add(2);
@@ -26,27 +29,55 @@ public class Main {
 //            System.out.println(stack.toString());
 //        });
 
-        VersionableQueue<Integer> queue = new VersionableQueue<Integer>(ResolveStrategy.LEFT_RIGHT);
+//        QUEUE TESTING
 
-        queue.add(2);
-        queue.add(3);
+//        VersionableQueue<Integer> queue = new VersionableQueue<Integer>(ResolveStrategy.LEFT_RIGHT);
+//
+//        queue.add(2);
+//        queue.add(3);
+//
+//        executor.submit(() -> {
+//            System.out.println(queue.remove()); // sleep 2000
+//            System.out.println(queue.toString());
+//
+//        });
+//
+//        executor.submit(() -> {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            queue.remove();
+//            queue.add(5);
+//            System.out.println(queue.toString());
+//        });
+//
+//    }
 
-        executor.submit(() -> {
-            System.out.println(queue.remove()); // sleep 2000
-            System.out.println(queue.toString());
+//        SET TESTING
 
-        });
+        VersionableSet<Integer> set = new VersionableSet<Integer>(ResolveStrategy.RIGHT);
 
-        executor.submit(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            queue.remove();
-            queue.add(5);
-            System.out.println(queue.toString());
-        });
+        System.out.println(set.add(2));
+        System.out.println(set.add(2));
+
+//        executor.submit(() -> {
+//            System.out.println(set.remove(2)); // sleep 2000
+//            System.out.println(set.toString());
+//
+//        });
+//
+//        executor.submit(() -> {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            System.out.println(set.remove(3));
+//            System.out.println(set.add(5));
+//            System.out.println(set.toString());
+//        });
 
     }
 

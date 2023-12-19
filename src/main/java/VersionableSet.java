@@ -1,34 +1,32 @@
-import java.util.AbstractQueue;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.Queue;
+import java.util.Stack;
 
+public class VersionableSet<E> {
 
-public class VersionableQueue<E> {
-
-    private LinkedList<E> queue;
+    private HashSet<E> set;
     private Integer version;
 
     private ResolveStrategy strategy;
 
-    public VersionableQueue(ResolveStrategy strategy) {
-        this.queue = new LinkedList<>();
+    public VersionableSet(ResolveStrategy strategy) {
+        this.set = new HashSet<E>();
         this.strategy = strategy;
         this.version = 0;
     }
 
-    private VersionableQueue(LinkedList<E> s, Integer version, ResolveStrategy strategy) {
-        this.queue = s;
+    private VersionableSet(HashSet<E> s, Integer version, ResolveStrategy strategy) {
+        this.set = s;
         this.version = version;
         this.strategy = strategy;
     }
-    private VersionableQueue<E> fork() {
-        LinkedList<E> newQueue = (LinkedList<E>)queue.clone();
-        return new VersionableQueue<E>(newQueue, version + 1, strategy);
+    private VersionableSet<E> fork() {
+        HashSet<E> newSet = (HashSet<E>)set.clone();
+        return new VersionableSet<E>(newSet, version + 1, strategy);
     }
 
-    private boolean merge(VersionableQueue<E> master,
-                       VersionableQueue<E> revised, Runnable change) {
+    private boolean merge(VersionableSet<E> master,
+                       VersionableSet<E> revised, Runnable change) {
         System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 
         if (!Objects.equals(revised.version - 1, master.version)) {
@@ -38,7 +36,7 @@ public class VersionableQueue<E> {
 
                 case LEFT -> { return false; }
                 case RIGHT -> {
-                    master.queue = revised.queue;
+                    master.set = revised.set;
                     master.version += 1;
                     return true;
                 }
@@ -47,38 +45,37 @@ public class VersionableQueue<E> {
                 }
             }
 
-            return false;
+
         }
-        master.queue = revised.queue;
+        master.set = revised.set;
         master.version += 1;
         return true;
     }
 
     public boolean add(E obj) {
 
-        VersionableQueue<E> copyQueue = fork();
+        VersionableSet<E> copySet = fork();
 
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        copyQueue.queue.offer(obj);
-
-        return merge(this, copyQueue, () -> { this.add(obj); });
+        if (!copySet.set.add(obj)) { return false; }
+        return merge(this, copySet, () -> { this.add(obj); });
 
     }
 
     @Override
     public String toString() {
-        return "VersionableQueue{" +
-                "queue=" + queue +
+        return "VersionableStack{" +
+                "stack=" + set +
                 ", version=" + version +
                 '}';
     }
-    public E remove() {
+    public boolean remove(E obj) {
 
-        VersionableQueue<E> copyQueue = fork();
+        VersionableSet<E> copySet = fork();
 
         try {
             Thread.sleep(2000);
@@ -86,11 +83,8 @@ public class VersionableQueue<E> {
             throw new RuntimeException(e);
         }
 
-        var object = copyQueue.queue.poll();
-
-        merge(this, copyQueue, this::remove);
-
-        return object;
+        if (!copySet.set.remove(obj)) { return false; }
+        return merge(this, copySet, () -> { this.remove(obj); });
     }
 //
 }
