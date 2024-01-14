@@ -7,27 +7,26 @@ public class Main {
 
 //        STACK TESTING
 
-//        VersionableStack<Integer> stack = new VersionableStack<Integer>(ResolveStrategy.LEFT);
-//
-//        stack.add(2);
-//        stack.add(3);
-//
-//        executor.submit(() -> {
-//            System.out.println(stack.pop()); // sleep 2000
-//            System.out.println(stack.toString());
-//
-//        });
-//
-//        executor.submit(() -> {
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            stack.pop();
-//            stack.add(5);
-//            System.out.println(stack.toString());
-//        });
+        VersionableStack<Integer> stack = new VersionableStack<Integer>(ResolveStrategy.LEFT);
+
+        stack.add(intWithSleep(2, 2000));
+        stack.add(intWithSleep(3, 2000));
+
+        executor.submit(() -> {
+            stack.add(intWithSleep(4, 2000));
+            System.out.println(stack.toString());
+
+        });
+
+        executor.submit(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            stack.add(intWithSleep(5, 1000));
+            System.out.println(stack.toString());
+        });
 
 //        QUEUE TESTING
 
@@ -57,10 +56,10 @@ public class Main {
 
 //        SET TESTING
 
-        VersionableSet<Integer> set = new VersionableSet<Integer>(ResolveStrategy.RIGHT);
-
-        System.out.println(set.add(2));
-        System.out.println(set.add(2));
+//        VersionableSet<Integer> set = new VersionableSet<Integer>(ResolveStrategy.RIGHT);
+//
+//        System.out.println(set.add(2));
+//        System.out.println(set.add(2));
 
 //        executor.submit(() -> {
 //            System.out.println(set.remove(2)); // sleep 2000
@@ -79,19 +78,18 @@ public class Main {
 //            System.out.println(set.toString());
 //        });
 
+        executor.close();
     }
 
-    static private Integer intWithoutSleep(Integer value) {
-        return value;
-    }
-
-    static private Integer intWithSleep(Integer value, Integer sleep) {
-        try {
-            Thread.sleep(sleep);
-        } catch (InterruptedException e) {
-            System.out.println(e.fillInStackTrace());
-        }
-        return value;
+    static private VersionableFunction<Integer> intWithSleep(Integer value, Integer sleep) {
+        return () -> {
+                try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+                System.out.println(e.fillInStackTrace());
+            }
+            return value;
+        };
     }
 
 

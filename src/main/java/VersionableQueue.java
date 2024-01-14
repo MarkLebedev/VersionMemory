@@ -9,7 +9,7 @@ public class VersionableQueue<E> {
     private LinkedList<E> queue;
     private Integer version;
 
-    private ResolveStrategy strategy;
+    private final ResolveStrategy strategy;
 
     public VersionableQueue(ResolveStrategy strategy) {
         this.queue = new LinkedList<>();
@@ -22,6 +22,7 @@ public class VersionableQueue<E> {
         this.version = version;
         this.strategy = strategy;
     }
+    @SuppressWarnings("unchecked")
     private VersionableQueue<E> fork() {
         LinkedList<E> newQueue = (LinkedList<E>)queue.clone();
         return new VersionableQueue<E>(newQueue, version + 1, strategy);
@@ -58,33 +59,32 @@ public class VersionableQueue<E> {
 
         VersionableQueue<E> copyQueue = fork();
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         copyQueue.queue.offer(obj);
 
         return merge(this, copyQueue, () -> { this.add(obj); });
+    }
 
+    public boolean add(VersionableFunction<E> function) {
+
+        VersionableQueue<E> copyQueue = fork();
+
+        E obj = function.apply();
+
+        copyQueue.queue.offer(obj);
+
+        return merge(this, copyQueue, () -> { this.add(obj); });
     }
 
     @Override
     public String toString() {
-        return "VersionableQueue{" +
-                "queue=" + queue +
-                ", version=" + version +
-                '}';
+        return "VersionableQueue { " +
+                "queue = " + queue +
+                ", version = " + version +
+                " }";
     }
     public E remove() {
 
         VersionableQueue<E> copyQueue = fork();
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         var object = copyQueue.queue.poll();
 
@@ -92,5 +92,5 @@ public class VersionableQueue<E> {
 
         return object;
     }
-//
+
 }

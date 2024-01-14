@@ -1,12 +1,15 @@
 import java.util.Objects;
 import java.util.Stack;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class VersionableStack<E> {
 
     private Stack<E> stack;
     private Integer version;
 
-    private ResolveStrategy strategy;
+    private final ResolveStrategy strategy;
 
     public VersionableStack(ResolveStrategy strategy) {
         this.stack = new Stack<E>();
@@ -19,6 +22,7 @@ public class VersionableStack<E> {
         this.version = version;
         this.strategy = strategy;
     }
+    @SuppressWarnings("unchecked")
     private VersionableStack<E> fork() {
         Stack<E> newStack = (Stack<E>)stack.clone();
         return new VersionableStack<E>(newStack, version + 1, strategy);
@@ -53,33 +57,27 @@ public class VersionableStack<E> {
 
         VersionableStack<E> copyStack = fork();
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         copyStack.stack.add(obj);
 
         merge(this, copyStack, () -> { this.add(obj); });
 
     }
 
-    @Override
-    public String toString() {
-        return "VersionableStack{" +
-                "stack=" + stack +
-                ", version=" + version +
-                '}';
-    }
-    public E pop() {
+    public void add(VersionableFunction<E> function) {
 
         VersionableStack<E> copyStack = fork();
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        E obj = function.apply();
+
+        copyStack.stack.add(obj);
+
+        merge(this, copyStack, () -> { this.add(obj); });
+
+    }
+
+    public E pop() {
+
+        VersionableStack<E> copyStack = fork();
 
         var object = copyStack.stack.pop();
 
@@ -87,5 +85,13 @@ public class VersionableStack<E> {
 
         return object;
     }
-//
+
+    @Override
+    public String toString() {
+        return "VersionableStack{ " +
+                "stack = " + stack +
+                ", version = " + version +
+                " }";
+    }
+
 }

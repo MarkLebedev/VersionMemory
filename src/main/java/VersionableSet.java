@@ -7,7 +7,7 @@ public class VersionableSet<E> {
     private HashSet<E> set;
     private Integer version;
 
-    private ResolveStrategy strategy;
+    private final ResolveStrategy strategy;
 
     public VersionableSet(ResolveStrategy strategy) {
         this.set = new HashSet<E>();
@@ -20,6 +20,7 @@ public class VersionableSet<E> {
         this.version = version;
         this.strategy = strategy;
     }
+    @SuppressWarnings("unchecked")
     private VersionableSet<E> fork() {
         HashSet<E> newSet = (HashSet<E>)set.clone();
         return new VersionableSet<E>(newSet, version + 1, strategy);
@@ -66,25 +67,40 @@ public class VersionableSet<E> {
 
     }
 
+    public boolean add(VersionableFunction<E> function) {
+
+        VersionableSet<E> copySet = fork();
+
+        E obj = function.apply();
+
+        if (!copySet.set.add(obj)) { return false; }
+        return merge(this, copySet, () -> { this.add(obj); });
+
+    }
+
     @Override
     public String toString() {
-        return "VersionableStack{" +
-                "stack=" + set +
-                ", version=" + version +
-                '}';
+        return "VersionableSet { " +
+                "set = " + set +
+                ", version = " + version +
+                " }";
     }
     public boolean remove(E obj) {
 
         VersionableSet<E> copySet = fork();
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        if (!copySet.set.remove(obj)) { return false; }
+        return merge(this, copySet, () -> { this.remove(obj); });
+    }
+
+    public boolean remove(VersionableFunction<E> function) {
+
+        VersionableSet<E> copySet = fork();
+
+        E obj = function.apply();
 
         if (!copySet.set.remove(obj)) { return false; }
         return merge(this, copySet, () -> { this.remove(obj); });
     }
-//
+
 }
