@@ -7,32 +7,34 @@ import java.util.function.Function;
 public class VersionableStack<E> {
 
     private Stack<E> stack;
-    private Integer version;
+
+    private Integer masterState;
+    private Integer state() { return stack.hashCode(); }
 
     private final ResolveStrategy strategy;
 
     public VersionableStack(ResolveStrategy strategy) {
         this.stack = new Stack<E>();
         this.strategy = strategy;
-        this.version = 0;
+        this.masterState = stack.hashCode();
     }
 
-    private VersionableStack(Stack<E> s, Integer version, ResolveStrategy strategy) {
+    private VersionableStack(Stack<E> s, Integer masterState, ResolveStrategy strategy) {
         this.stack = s;
-        this.version = version;
+        this.masterState = masterState;
         this.strategy = strategy;
     }
     @SuppressWarnings("unchecked")
     private VersionableStack<E> fork() {
         Stack<E> newStack = (Stack<E>)stack.clone();
-        return new VersionableStack<E>(newStack, version + 1, strategy);
+        return new VersionableStack<E>(newStack, this.state(), strategy);
     }
 
     private void merge(VersionableStack<E> master,
                        VersionableStack<E> revised, Runnable change) {
         System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 
-        if (!Objects.equals(revised.version - 1, master.version)) {
+        if (!Objects.equals(revised.masterState, master.state())) {
             System.out.printf("Conflict: Master - %s, Revised - %s%n", master.toString(), revised.toString());
 
             switch (strategy) {
@@ -40,7 +42,6 @@ public class VersionableStack<E> {
                 case LEFT -> { return; }
                 case RIGHT -> {
                     master.stack = revised.stack;
-                    master.version += 1;
                 }
                 case LEFT_RIGHT -> {
                     change.run();
@@ -50,7 +51,6 @@ public class VersionableStack<E> {
             return;
         }
         master.stack = revised.stack;
-        master.version += 1;
     }
 
     public E push(E obj) {
@@ -112,7 +112,8 @@ public class VersionableStack<E> {
     public String toString() {
         return "VersionableStack{ " +
                 "stack = " + stack +
-                ", version = " + version +
+                " masterState = " + masterState +
+                " state = " + state() +
                 " }";
     }
 

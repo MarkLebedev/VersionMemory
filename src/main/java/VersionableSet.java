@@ -3,32 +3,33 @@ import java.util.*;
 public class VersionableSet<E> {
 
     private HashSet<E> set;
-    private Integer version;
+    private Integer masterState;
+    private Integer state() { return set.hashCode(); }
 
     private final ResolveStrategy strategy;
 
     public VersionableSet(ResolveStrategy strategy) {
         this.set = new HashSet<E>();
         this.strategy = strategy;
-        this.version = 0;
+        this.masterState = set.hashCode();
     }
 
-    private VersionableSet(HashSet<E> s, Integer version, ResolveStrategy strategy) {
+    private VersionableSet(HashSet<E> s, Integer stateHash, ResolveStrategy strategy) {
         this.set = s;
-        this.version = version;
+        this.masterState = masterState;
         this.strategy = strategy;
     }
     @SuppressWarnings("unchecked")
     private VersionableSet<E> fork() {
         HashSet<E> newSet = (HashSet<E>)set.clone();
-        return new VersionableSet<E>(newSet, version + 1, strategy);
+        return new VersionableSet<E>(newSet, this.state(), strategy);
     }
 
     private boolean merge(VersionableSet<E> master,
                        VersionableSet<E> revised, Runnable change) {
         System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 
-        if (!Objects.equals(revised.version - 1, master.version)) {
+        if (!Objects.equals(revised.masterState, master.state())) {
             System.out.printf("Conflict: Master - %s, Revised - %s%n", master.toString(), revised.toString());
 
             switch (strategy) {
@@ -36,7 +37,6 @@ public class VersionableSet<E> {
                 case LEFT -> { return false; }
                 case RIGHT -> {
                     master.set = revised.set;
-                    master.version += 1;
                     return true;
                 }
                 case LEFT_RIGHT -> {
@@ -47,7 +47,6 @@ public class VersionableSet<E> {
 
         }
         master.set = revised.set;
-        master.version += 1;
         return true;
     }
 
@@ -94,7 +93,8 @@ public class VersionableSet<E> {
     public String toString() {
         return "VersionableSet { " +
                 "set = " + set +
-                ", version = " + version +
+                " masterState = " + masterState +
+                " state = " + state() +
                 " }";
     }
     public boolean remove(E obj) {
