@@ -1,6 +1,4 @@
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 public class VersionableSet<E> {
 
@@ -57,13 +55,17 @@ public class VersionableSet<E> {
 
         VersionableSet<E> copySet = fork();
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         if (!copySet.set.add(obj)) { return false; }
         return merge(this, copySet, () -> { this.add(obj); });
+
+    }
+
+    public boolean addAll(List<E> collection) {
+
+        VersionableSet<E> copySet = fork();
+
+        if (!copySet.set.addAll(collection)) { return false; }
+        return merge(this, copySet, () -> { this.addAll(collection); });
 
     }
 
@@ -76,6 +78,16 @@ public class VersionableSet<E> {
         if (!copySet.set.add(obj)) { return false; }
         return merge(this, copySet, () -> { this.add(obj); });
 
+    }
+
+    public boolean addAll(Collection<VersionableFunction<E>> functionCollection) {
+
+        VersionableSet<E> copySet = fork();
+
+        List<E> collection = functionCollection.stream().map( VersionableFunction::apply ).toList();
+
+        if (!copySet.set.addAll(collection)) { return false; }
+        return merge(this, copySet, () -> { this.addAll(collection); });
     }
 
     @Override
@@ -101,6 +113,79 @@ public class VersionableSet<E> {
 
         if (!copySet.set.remove(obj)) { return false; }
         return merge(this, copySet, () -> { this.remove(obj); });
+    }
+
+    public boolean removeAll(List<E> collection) {
+
+        VersionableSet<E> copySet = fork();
+
+        if (!copySet.set.removeAll(collection)) { return false; }
+        return merge(this, copySet, () -> { this.removeAll(collection); });
+
+    }
+
+    public boolean removeAll(Collection<VersionableFunction<E>> functionCollection) {
+
+        VersionableSet<E> copySet = fork();
+
+        List<E> collection = functionCollection.stream().map( VersionableFunction::apply ).toList();
+
+        if (!copySet.set.removeAll(collection)) { return false; }
+        return merge(this, copySet, () -> { this.removeAll(collection); });
+    }
+
+
+    public int size() {
+        return set.size();
+    }
+
+    public boolean isEmpty() {
+        return set.isEmpty();
+    }
+
+    public boolean contains(E object) {
+
+        VersionableSet<E> copySet = fork();
+
+        copySet.set.contains(object);
+
+        return merge(this, copySet, () -> { this.contains(object); });
+    }
+
+    public boolean containsAll(Collection<E> collection) {
+
+        VersionableSet<E> copySet = fork();
+
+        copySet.set.containsAll(collection);
+
+        return merge(this, copySet, () -> { this.containsAll(collection); });
+    }
+
+    public void clear() {
+
+        VersionableSet<E> copySet = fork();
+
+        copySet.set.clear();
+
+        merge(this, copySet, () -> { this.clear(); });
+    }
+
+    public boolean retainAll(List<E> collection) {
+
+        VersionableSet<E> copySet = fork();
+
+        if (!copySet.set.retainAll(collection)) { return false; }
+        return merge(this, copySet, () -> { this.retainAll(collection); });
+    }
+
+    public boolean retainAll(Collection<VersionableFunction<E>> functionCollection) {
+
+        VersionableSet<E> copySet = fork();
+
+        List<E> collection = functionCollection.stream().map( VersionableFunction::apply ).toList();
+
+        if (!copySet.set.retainAll(collection)) { return false; }
+        return merge(this, copySet, () -> { this.retainAll(collection); });
     }
 
 }
