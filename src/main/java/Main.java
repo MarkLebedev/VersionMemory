@@ -9,11 +9,11 @@ public class Main {
 
         VersionableStack<Integer> stack = new VersionableStack<Integer>(ResolveStrategy.LEFT);
 
-        stack.add(intWithSleep(2, 2000));
-        stack.add(intWithSleep(3, 2000));
+        stack.push(intWithSleep(2, 2000));
+        stack.push(intWithSleep(3, 2000));
 
         executor.submit(() -> {
-            stack.add(intWithSleep(4, 2000));
+            stack.push(intWithSleep(4, 2000));
             System.out.println(stack.toString());
 
         });
@@ -24,7 +24,7 @@ public class Main {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            stack.add(intWithSleep(5, 1000));
+            stack.push(intWithSleep(5, 1000));
             System.out.println(stack.toString());
         });
 

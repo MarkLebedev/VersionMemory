@@ -93,4 +93,23 @@ public class VersionableQueue<E> {
         return object;
     }
 
+    public E poll() {
+
+        if (this.queue.isEmpty()) {
+            return null;
+        }
+
+        return this.queue.remove();
+    }
+
+    public E peek() {
+        return this.queue.peek();
+    }
+
+    public E element() {
+        return this.queue.element();
+    }
+
+    
+
 }

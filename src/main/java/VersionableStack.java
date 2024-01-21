@@ -53,17 +53,19 @@ public class VersionableStack<E> {
         master.version += 1;
     }
 
-    public void add(E obj) {
+    public E push(E obj) {
 
         VersionableStack<E> copyStack = fork();
 
         copyStack.stack.add(obj);
 
-        merge(this, copyStack, () -> { this.add(obj); });
+        merge(this, copyStack, () -> { this.push(obj); });
+
+        return obj;
 
     }
 
-    public void add(VersionableFunction<E> function) {
+    public E push(VersionableFunction<E> function) {
 
         VersionableStack<E> copyStack = fork();
 
@@ -71,7 +73,9 @@ public class VersionableStack<E> {
 
         copyStack.stack.add(obj);
 
-        merge(this, copyStack, () -> { this.add(obj); });
+        merge(this, copyStack, () -> { this.push(obj); });
+
+        return function.apply();
 
     }
 
@@ -84,6 +88,24 @@ public class VersionableStack<E> {
         merge(this, copyStack, this::pop);
 
         return object;
+    }
+
+    public E peek(){
+        return this.stack.peek();
+    }
+
+    public boolean empty(){
+        return this.stack.empty();
+    }
+
+    public int search(Object o){
+        VersionableStack<E> copyStack = fork();
+
+        var position = copyStack.stack.search(o);
+
+        merge(this, copyStack, () -> {search(o);});
+
+        return position;
     }
 
     @Override
