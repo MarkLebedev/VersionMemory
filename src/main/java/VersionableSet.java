@@ -14,7 +14,7 @@ public class VersionableSet<E> {
         this.masterState = set.hashCode();
     }
 
-    private VersionableSet(HashSet<E> s, Integer stateHash, ResolveStrategy strategy) {
+    private VersionableSet(HashSet<E> s, Integer masterState, ResolveStrategy strategy) {
         this.set = s;
         this.masterState = masterState;
         this.strategy = strategy;
