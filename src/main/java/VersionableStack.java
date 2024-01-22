@@ -30,7 +30,7 @@ public class VersionableStack<E> {
         return new VersionableStack<E>(newStack, this.state(), strategy);
     }
 
-    private void merge(VersionableStack<E> master,
+    private synchronized void merge(VersionableStack<E> master,
                        VersionableStack<E> revised, Runnable change) {
         System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 

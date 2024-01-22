@@ -26,7 +26,7 @@ public class VersionableQueue<E> {
         return new VersionableQueue<E>(newQueue, this.state(), strategy);
     }
 
-    private boolean merge(VersionableQueue<E> master,
+    private synchronized boolean merge(VersionableQueue<E> master,
                        VersionableQueue<E> revised, Runnable change) {
         System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 

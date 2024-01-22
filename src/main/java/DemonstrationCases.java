@@ -3,7 +3,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public final class DemonstrationCases {
 
-    public static void QueueTest(ResolveStrategy strategy){
+    public static void queueTest(ResolveStrategy strategy){
+        System.out.println("---Queue Demonstration---");
+
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
 
         VersionableQueue<Integer> queue = new VersionableQueue<Integer>(strategy);
@@ -31,7 +33,9 @@ public final class DemonstrationCases {
 
     }
 
-    public static void SetTest(ResolveStrategy strategy){
+    public static void setTest(ResolveStrategy strategy){
+        System.out.println("---Set Demonstration---");
+
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
 
         VersionableSet<Integer> set = new VersionableSet<Integer>(strategy);
@@ -57,7 +61,9 @@ public final class DemonstrationCases {
 
     }
 
-    public static void StackTest(ResolveStrategy strategy){
+    public static void stackTest(ResolveStrategy strategy){
+        System.out.println("---Stack Demonstration---");
+
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
 
         VersionableStack<Integer> stack = new VersionableStack<Integer>(strategy);

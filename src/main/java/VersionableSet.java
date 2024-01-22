@@ -25,7 +25,7 @@ public class VersionableSet<E> {
         return new VersionableSet<E>(newSet, this.state(), strategy);
     }
 
-    private boolean merge(VersionableSet<E> master,
+    private synchronized boolean merge(VersionableSet<E> master,
                        VersionableSet<E> revised, Runnable change) {
         System.out.printf("Merge: Master - %s, revised - %s%n", master.toString(), revised.toString());
 
